@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Define the input folder containing the TSV files
+input_folder="/home/group_shyam01/output_processed/"
+
+# Define the output folder
+output_folder="/home/group_shyam01/counts_per_type/"
+
+# Create the output folder if it doesn't exist
+#mkdir -p "$output_folder"
+
+# Define the variant types to count
+variant_types=("frameshift_variant" "missense_variant" "5_prime_UTR_variant" "3_prime_UTR_variant" "non_coding_transcript_exon_variant" "intron_variant" "intergenic_region" "stop_gained")
+
+# Loop through each TSV file in the input folder
+for file in "$input_folder"/*.tsv; do
+    # Get the filename without extension
+    filename=$(basename -- "$file")
+    filename_no_ext="${filename%.*}"
+
+    # Create the output file for the current input file
+    output_file="$output_folder${filename_no_ext}_variant_counts.tsv"
+
+    # Create the output file and add the header
+    echo -e "Chromosome\tVariant_Type\tCount" > "$output_file"
+
+    # Loop through each variant type
+    for type in "${variant_types[@]}"; do
+        # Count the occurrences of the variant type for each chromosome
+        counts=$(awk -v type="$type" -F'\t' '$3 == type {chrom_count[$1]++} END {for (chrom in chrom_count) print chrom, type, chrom_count[chrom]}' "$file" | sort)
+
+        # Append the counts to the output file
+        echo "$counts" >> "$output_file"
+    done
+done
+

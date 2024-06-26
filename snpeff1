@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Define the folder containing the GVCF files
+input_folder="/home/group_shyam01/data_processed/SPARK/snpEff/all_annotated"
+
+# Define the folder to store the processed output files
+output_folder="/home/paridhi/output_processed"
+
+# Create the output folder if it doesn't exist
+#mkdir -p "$output_folder"
+
+# Iterate over each GVCF file in the input folder
+for gvcf_file in "$input_folder"/*.gvcf; do
+    # Extract the base filename (without extension)
+    base_name=$(basename "$gvcf_file" .gvcf)
+    
+    # Process the GVCF file
+    bcftools query -f '%CHROM\t%POS\t%INFO/ANN[*].EFFECT\n' "$gvcf_file" > "$output_folder"/"$base_name"_variants.tsv
+    awk '{split($3, a, "|"); print $1 "\t" $2 "\t" a[2]}' "$output_folder"/"$base_name"_variants.tsv > "$output_folder"/"$base_name"_output.tsv
+
+    # Optionally, remove intermediate files (comment out if you want to keep them)
+    rm "$output_folder"/"$base_name"_variants.tsv
+done
+

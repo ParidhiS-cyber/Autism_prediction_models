@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Specify the directory where the VCF files are located
+vcf_directory="/home/group_shyam01/data/gvcf/9"
+
+# Specify the output directory for stats files
+stats_directory="gvcf_stats_9"
+
+# Loop through each VCF file in the directory
+for vcf_file in "$vcf_directory"/*.gvcf.gz; do
+    # Get the filename (without the path and extension)
+    vcf_filename=$(basename "$vcf_file" .gvcf.gz)
+
+    # Define the output stats file for this VCF
+    stats_file="$stats_directory/$vcf_filename.stats"
+
+    # Run bcftools index --stats for the current VCF file
+    bcftools index --stats "$vcf_file" > "$stats_file"
+
+    # You can process or analyze the stats file here if needed
+    # For example, to extract chromosome-specific information.
+    
+    # Continue with the next VCF file
+done
+
+

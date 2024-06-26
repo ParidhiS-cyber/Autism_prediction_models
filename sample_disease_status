@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Input files
+text_file="/home/group_shyam01/not_found_types"
+csv_file="/home/group_shyam01/urgent/basic_medical_screening.csv"
+output_file="/home/group_shyam01/not_found_status_types.csv"
+
+# Check if input files exist
+if [ ! -f "$text_file" ] || [ ! -f "$csv_file" ]; then
+  echo "Input file not found."
+  exit 1
+fi
+
+# Create a header for the output CSV file
+echo "Sample,Diseased" > "$output_file"
+
+# Loop through each sample in the text file
+while IFS= read -r sample; do
+  # Use 'grep' to search for the sample in the CSV file and extract the diseased status
+  diseased_status=$(grep -w "$sample" "$csv_file" | cut -d, -f5)
+
+  # Check if a match was found
+  if [ -n "$diseased_status" ]; then
+    # Append the sample and diseased status to the output file
+    echo "$sample,$diseased_status" >> "$output_file"
+  else
+    # If no match was found, mark it as "Not Found"
+    echo "$sample,Not Found" >> "$output_file"
+  fi
+done < "$text_file"
+
+echo "Results saved to $output_file"
+
